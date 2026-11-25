@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mobiledev – Small, focused apps for Android</title>
+  <meta name="description" content="mobiledev makes free, focused Android apps: Dotify, a dot matrix always-on display; Cineframe, a 65:24 panoramic camera; and Animate, a hand-drawn animation app, coming soon.">
+  <link rel="icon" type="image/png" href="img/dotify/icon.png">
+  <meta property="og:title" content="mobiledev – Small, focused apps for Android">
+  <meta property="og:description" content="Dotify, Cineframe, and Animate (coming soon).">
+  <meta property="og:image" content="img/dotify/icon.png">
+  <meta name="theme-color" content="#0A0A0C">
+  <style>
+    :root {
+      --bg: #0A0A0C;
+      --bg-2: #111114;
+      --card: #16161B;
+      --line: #26262E;
+      --text: #F4F4F6;
+      --dim: #A6A6B0;
+      --radius: 22px;
+      --max: 1160px;
+      --dotify: #FFD84D;
+      --cine: #F0A24A;
+      --cine-2: #D9782B;
+      --anim: #8B5CF6;
+      --anim-2: #C026D3;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 18px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
+    img, video { display: block; max-width: 100%; }
+    a { color: inherit; }
+    a:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    header { position: sticky; top: 0; z-index: 10; background: rgba(10, 10, 12, .85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 21px; text-decoration: none; letter-spacing: -.01em; }
+    .brand-dots { display: grid; grid-template-columns: repeat(2, 8px); gap: 4px; }
+    .brand-dots i { width: 8px; height: 8px; border-radius: 50%; }
+    .brand-dots i:nth-child(1) { background: var(--dotify); }
+    .brand-dots i:nth-child(2) { background: var(--cine); }
+    .brand-dots i:nth-child(3) { background: var(--anim); }
+    .brand-dots i:nth-child(4) { background: #3A3A44; }
+    .nav-links { display: flex; align-items: center; gap: 26px; }
+    .nav-links a { color: var(--dim); text-decoration: none; font-size: 16px; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 999px; font-weight: 700; font-size: 16px; text-decoration: none; transition: transform .15s; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn svg { width: 19px; height: 19px; flex: none; }
+    .btn-ghost { border: 1px solid var(--line); color: var(--text); }
+    .btn-ghost:hover { border-color: #44444F; }
+
+    /* Hero */
+    .hero { position: relative; padding: 96px 0 72px; text-align: center; }
+    .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(circle, #2A2A33 1.2px, transparent 1.6px); background-size: 22px 22px; mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 75%); }
+    .eyebrow { color: var(--dim); font-size: 14px; letter-spacing: .24em; text-transform: uppercase; margin: 0 0 16px; }
+    h1 { font-size: clamp(40px, 6.4vw, 72px); line-height: 1.05; margin: 0 0 20px; letter-spacing: -0.025em; }
+    h1 .grad { background: linear-gradient(90deg, var(--dotify), var(--cine) 45%, var(--anim) 80%, var(--anim-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { font-size: 20px; color: var(--dim); margin: 0 auto 36px; max-width: 34em; }
+    .app-pills { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .app-pills a { display: flex; align-items: center; gap: 10px; padding: 8px 18px 8px 8px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 16px; }
+    .app-pills a:hover { border-color: #44444F; }
+    .app-pills img { width: 34px; height: 34px; border-radius: 10px; }
+    .soon-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #E9D5FF; background: rgba(139, 92, 246, .22); border-radius: 999px; padding: 2px 8px; }
+
+    /* App showcase */
+    .app { padding: 56px 0; }
+    .showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; background: linear-gradient(135deg, var(--bg-2), var(--card)); border: 1px solid var(--line); border-radius: 32px; padding: 52px; position: relative; overflow: hidden; }
+    .showcase::after { content: ""; position: absolute; width: 520px; height: 520px; border-radius: 50%; right: -180px; top: -200px; background: var(--glow); opacity: .14; filter: blur(80px); pointer-events: none; }
+    .app.flip .copy { order: 2; }
+    .app-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .app-head img { width: 64px; height: 64px; border-radius: 18px; }
+    .app-head h2 { margin: 0; font-size: clamp(30px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -0.015em; }
+    .app-head .kind { margin: 2px 0 0; color: var(--dim); font-size: 15px; }
+    .tagline { font-size: 22px; line-height: 1.35; font-weight: 600; margin: 0 0 14px; }
+    .copy > p.desc { color: var(--dim); margin: 0 0 22px; }
+    .points { list-style: none; padding: 0; margin: 0 0 30px; display: grid; gap: 10px; }
+    .points li { position: relative; padding-left: 26px; font-size: 16px; }
+    .points li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn-app { background: var(--btn-bg); color: var(--btn-fg); }
+
+    .media { display: flex; justify-content: center; position: relative; z-index: 1; }
+
+    /* Dotify */
+    #dotify { --accent: var(--dotify); --glow: var(--dotify); --btn-bg: var(--dotify); --btn-fg: #000; }
+    .phone { width: 260px; border-radius: 34px; border: 8px solid #1F1F25; background: #000; overflow: hidden; box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .8), 0 0 0 1px #2C2C34; }
+    .phone video, .phone img { width: 100%; height: auto; }
+    .dotify-media { gap: 18px; align-items: flex-end; }
+    .dotify-media .phone + .phone { width: 200px; margin-bottom: 30px; }
+
+    /* Cineframe */
+    #cineframe { --accent: var(--cine); --glow: var(--cine); --btn-bg: linear-gradient(135deg, var(--cine), var(--cine-2)); --btn-fg: #1C1206; }
+    .pano { width: 100%; }
+    .pano .ratio, .pano .formats { color: var(--dim); font: 13px/1 ui-monospace, Consolas, monospace; letter-spacing: .2em; }
+    .pano .ratio { margin-bottom: 12px; }
+    .pano .formats { margin-top: 12px; text-align: right; }
+    .pano img { width: 100%; height: auto; aspect-ratio: 65 / 24; object-fit: cover; border: 2px solid var(--cine-2); border-radius: 8px; }
+
+    /* Animate */
+    #animate { --accent: var(--anim); --glow: var(--anim-2); }
+    .tablet { position: relative; width: 100%; border-radius: 22px; border: 8px solid #1F1F25; overflow: hidden; background: #000; box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .8), 0 0 0 1px #2C2C34; }
+    .tablet video, .tablet img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
+    .ribbon { position: absolute; top: 16px; left: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(18, 8, 31, .82); backdrop-filter: blur(6px); border: 1px solid rgba(192, 38, 211, .45); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #F3E8FF; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--anim-2); box-shadow: 0 0 0 0 rgba(192, 38, 211, .7); animation: pulse 1.8s infinite; }
+    @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(192, 38, 211, 0); } 100% { box-shadow: 0 0 0 0 rgba(192, 38, 211, 0); } }
+    .soon-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(139, 92, 246, .16); border: 1px solid rgba(139, 92, 246, .4); color: #DDD6FE; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 18px; }
+    .btn-soon { background: linear-gradient(135deg, var(--anim), var(--anim-2)); color: #fff; opacity: .55; cursor: default; }
+    .btn-soon:hover { transform: none; }
+
+    /* About + contact */
+    .about { padding: 80px 0 72px; }
+    .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .about-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; }
+    .about-card h3 { margin: 0 0 8px; font-size: 20px; }
+    .about-card p { margin: 0; color: var(--dim); font-size: 16px; }
+    .section-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
+    .section-head h2 { font-size: clamp(30px, 4vw, 42px); line-height: 1.15; margin: 0 0 12px; letter-spacing: -0.01em; }
+    .section-head p { color: var(--dim); margin: 0; }
+    .contact { text-align: center; padding: 0 0 88px; }
+    .contact-card { max-width: 760px; margin: 0 auto; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 48px 32px; }
+    .contact-card h2 { font-size: clamp(28px, 3.6vw, 38px); margin: 0 0 10px; }
+    .contact-card p { color: var(--dim); margin: 0 auto 26px; max-width: 32em; }
+
+    footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--dim); font-size: 15px; }
+    .foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .foot nav { display: flex; gap: 22px; flex-wrap: wrap; }
+    .foot a { text-decoration: none; }
+    .foot a:hover { color: var(--text); }
+
+    @media (max-width: 920px) {
+      .showcase { grid-template-columns: 1fr; padding: 36px; gap: 40px; }
+      .app.flip .copy { order: 0; }
+      .about-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 17px; }
+      .wrap { padding: 0 16px; }
+      .hide-sm { display: none; }
+      .hero { padding: 64px 0 44px; }
+      .lead { font-size: 18px; }
+      .app { padding: 28px 0; }
+      .showcase { padding: 26px 20px; border-radius: 26px; }
+      .tagline { font-size: 20px; }
+      .phone { width: 210px; }
+      .dotify-media .phone + .phone { display: none; }
+      .tablet { border-width: 6px; border-radius: 16px; }
+      .pano .ratio, .pano .formats { letter-spacing: .12em; }
+      .btn { padding: 12px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .btn { transition: none; }
+      .pulse { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#top"><span class="brand-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>mobiledev</a>
+      <nav class="nav-links">
+        <a class="hide-sm" href="#dotify">Dotify</a>
+        <a class="hide-sm" href="#cineframe">Cineframe</a>
+        <a class="hide-sm" href="#animate">Animate</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Independent Android apps</p>
+        <h1>Small apps that do<br><span class="grad">one thing beautifully</span></h1>
+        <p class="lead">We make free, focused apps for Android: a glowing dot matrix always-on display, a panoramic cinema camera, and soon, a hand-drawn animation studio in your pocket.</p>
+        <ul class="app-pills">
+          <li><a href="#dotify"><img src="img/dotify/icon.png" alt="" width="34" height="34">Dotify</a></li>
+          <li><a href="#cineframe"><img src="img/cineframe/icon.png" alt="" width="34" height="34">Cineframe</a></li>
+          <li><a href="#animate"><img src="img/animate/icon.png" alt="" width="34" height="34">Animate <span class="soon-tag">Soon</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Dotify -->
+    <section class="app" id="dotify">
+      <div class="wrap">
+        <div class="showcase">
+          <div class="copy">
+            <div class="app-head">
+              <img src="img/dotify/icon.png" alt="" width="64" height="64">
+              <div>
+                <h2>Dotify</h2>
+                <p class="kind">Always-on display &amp; dot icons</p>
+              </div>
+            </div>
+            <p class="tagline">Your screen and icons, in glowing dots.</p>
+            <p class="desc">A free always-on display for Android. See the time, date and battery in a dot matrix face whenever your screen turns off, then give your app icons the same look.</p>
+            <ul class="points">
+              <li>Static and animated dot matrix faces</li>
+              <li>Draw your own, or turn a photo into dots</li>
+              <li>Dot icons for your home screen, recolored or hand-drawn</li>
+              <li>Smart about your battery</li>
+            </ul>
+            <div class="actions">
+              <a class="btn btn-app" href="https://play.google.com/store/apps/details?id=com.app.dotify">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.2 2.6 13.5 12l-9.3 9.4c-.3-.2-.5-.6-.5-1V3.6c0-.4.2-.8.5-1Zm10.4 10.5 2.3 2.3-10.6 6a1 1 0 0 1-.6.2l8.9-8.5Zm3.6-3.6 2.6 1.5c.8.5.8 1.6 0 2l-2.6 1.6-2.6-2.6 2.6-2.5ZM6.3 2.4a1 1 0 0 1 .6.1l10.6 6-2.3 2.3-8.9-8.4Z"/></svg>
+                Get it on Google Play
+              </a>
+            </div>
+          </div>
+          <div class="media dotify-media">
+            <div class="phone">
+              <video src="img/dotify/demo.mp4" poster="img/dotify/demo-poster.jpg" autoplay muted loop playsinline width="540" height="840" aria-label="Animated Galaxy dot matrix face on Dotify"></video>
+            </div>
+            <div class="phone">
+              <img src="img/dotify/icons-custom.jpg" alt="Dotify's custom dot icons screen" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cineframe -->
+    <section class="app flip" id="cineframe">
+      <div class="wrap">
+        <div class="showcase">
+          <div class="copy">
+            <div class="app-head">
+              <img src="img/cineframe/icon.png" alt="" width="64" height="64">
+              <div>
+                <h2>Cineframe</h2>
+                <p class="kind">65:24 panoramic camera</p>
+              </div>
+            </div>
+            <p class="tagline">Shoot ultra-wide. Frame it like cinema.</p>
+            <p class="desc">A minimalist camera for photos and videos in the 65:24 panoramic format, with a cinematic film-camera feel. Compose in the frame as you shoot, with no cropping in post.</p>
+            <ul class="points">
+              <li>True 65:24 photos and video</li>
+              <li>Live cinematic LUTs, grain, vignette and halation</li>
+              <li>RAW (DNG) capture and manual control</li>
+              <li>HEVC or H.264 video at your chosen frame rate</li>
+            </ul>
+            <div class="actions">
+              <a class="btn btn-app" href="https://play.google.com/store/apps/details?id=com.cineframe.app">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.2 2.6 13.5 12l-9.3 9.4c-.3-.2-.5-.6-.5-1V3.6c0-.4.2-.8.5-1Zm10.4 10.5 2.3 2.3-10.6 6a1 1 0 0 1-.6.2l8.9-8.5Zm3.6-3.6 2.6 1.5c.8.5.8 1.6 0 2l-2.6 1.6-2.6-2.6 2.6-2.5ZM6.3 2.4a1 1 0 0 1 .6.1l10.6 6-2.3 2.3-8.9-8.4Z"/></svg>
+                Get it on Google Play
+              </a>
+            </div>
+          </div>
+          <div class="media">
+            <div class="pano">
+              <div class="ratio">65:24</div>
+              <img src="img/cineframe/pano.jpg" alt="Golden sunset over mountains and a beach in a wide 65:24 frame" width="558" height="206" loading="lazy">
+              <div class="formats">PHOTO · VIDEO · RAW · LUT</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Animate (coming soon) -->
+    <section class="app" id="animate">
+      <div class="wrap">
+        <div class="showcase">
+          <div class="copy">
+            <span class="soon-badge"><span class="pulse" aria-hidden="true"></span>Coming soon</span>
+            <div class="app-head">
+              <img src="img/animate/icon.png" alt="" width="64" height="64">
+              <div>
+                <h2>Animate</h2>
+                <p class="kind">Hand-drawn animation</p>
+              </div>
+            </div>
+            <p class="tagline">Bring your drawings to life.</p>
+            <p class="desc">A free, frame-by-frame animation app for Android phones and tablets. Draw, press play, and watch it move.</p>
+            <ul class="points">
+              <li>Frame by frame with onion skin</li>
+              <li>Pressure-sensitive brushes and one-tap fill</li>
+              <li>Add a soundtrack</li>
+              <li>Export to MP4, GIF or PNG</li>
+            </ul>
+            <div class="actions">
+              <span class="btn btn-soon" aria-disabled="true">Coming soon to Google Play</span>
+            </div>
+          </div>
+          <div class="media">
+            <div class="tablet">
+              <video src="img/animate/demo.mp4" poster="img/animate/demo-poster.jpg" autoplay muted loop playsinline width="1280" height="800" aria-label="Drawing and playing back an animation in Animate"></video>
+              <span class="ribbon"><span class="pulse" aria-hidden="true"></span>Coming soon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>How we build</h2>
+          <p>Every app follows the same few rules.</p>
+        </div>
+        <div class="about-grid">
+          <div class="about-card">
+            <h3>Free to use</h3>
+            <p>Our apps are free to download, with no account and no sign-up.</p>
+          </div>
+          <div class="about-card">
+            <h3>Private by default</h3>
+            <p>Your drawings, photos and settings stay on your device.</p>
+          </div>
+          <div class="about-card">
+            <h3>Made for Android</h3>
+            <p>Built natively for Android phones and tablets, and kept light on battery.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="wrap">
+        <div class="contact-card">
+          <h2>Say hello</h2>
+          <p>Questions, feedback or an idea for one of our apps? We read every message.</p>
+          <a class="btn btn-ghost" href="mailto:mobiledev0509@gmail.com">mobiledev0509@gmail.com</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span>© 2026 mobiledev</span>
+      <nav>
+        <a href="https://sites.google.com/view/privacy-policy-dotify/home">Dotify privacy</a>
+        <a href="https://sites.google.com/view/privacy-policy-cineframe/home">Cineframe privacy</a>
+        <a href="https://sites.google.com/view/privacy-policy-animate/home">Animate privacy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
